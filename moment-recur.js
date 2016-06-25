@@ -449,11 +449,11 @@
         // Recur Object Constrcutor
         var Recur = function(options) {
             if ( options.start ) {
-                this.start = moment(options.start).dateOnly();
+                this.start = moment(options.start, 'MM/DD/YYYY').dateOnly();
             }
 
             if ( options.end ) {
-                this.end = moment(options.end).dateOnly();
+                this.end = moment(options.end, 'MM/DD/YYYY').dateOnly();
             }
 
             // Our list of rules, all of which must match
@@ -486,7 +486,7 @@
             }
 
             if (date) {
-                this.start = moment(date).dateOnly();
+                this.start = moment(date, 'MM/DD/YYYY').dateOnly();
                 return this;
             }
 
@@ -501,7 +501,7 @@
             }
 
             if (date) {
-                this.end = moment(date).dateOnly();
+                this.end = moment(date, 'MM/DD/YYYY').dateOnly();
                 return this;
             }
 
@@ -516,7 +516,7 @@
             }
 
             if (date) {
-                this.from = moment(date).dateOnly();
+                this.from = moment(date, 'MM/DD/YYYY').dateOnly();
                 return this;
             }
 
@@ -527,11 +527,11 @@
         Recur.prototype.save = function() {
             var data = {};
 
-            if (this.start && moment(this.start).isValid()) {
+            if (this.start && moment(this.start, 'MM/DD/YYYY').isValid()) {
                 data.start = this.start.format("L");
             }
 
-            if (this.end && moment(this.end).isValid()) {
+            if (this.end && moment(this.end, 'MM/DD/YYYY').isValid()) {
                 data.end = this.end.format("L");
             }
 
@@ -570,7 +570,7 @@
 
         // Creates an exception date to prevent matches, even if rules match
         Recur.prototype.except = function(date) {
-            date = moment(date).dateOnly();
+            date = moment(date, 'MM/DD/YYYY').dateOnly();
             this.exceptions.push(date);
             return this;
         };
@@ -578,7 +578,7 @@
         // Forgets rules (by passing measure) and exceptions (by passing date)
         Recur.prototype.forget = function(dateOrRule) {
             var i, len;
-            var whatMoment = moment(dateOrRule);
+            var whatMoment = moment(dateOrRule, 'MM/DD/YYYY');
 
             // If valid date, try to remove it from exceptions
             if (whatMoment.isValid()) {
@@ -614,7 +614,7 @@
 
         // Attempts to match a date to the rules
         Recur.prototype.matches = function(dateToMatch, ignoreStartEnd) {
-            var date = moment(dateToMatch).dateOnly();
+            var date = moment(dateToMatch, 'MM/DD/YYYY').dateOnly();
 
             if (!date.isValid()) {
                 throw Error("Invalid date supplied to match method: " + dateToMatch);
@@ -741,6 +741,7 @@
     moment.fn.dateOnly = function() {
         if (this.tz && typeof(moment.tz) == 'function' ) {
             return moment.tz(this.format('YYYY-MM-DD'), 'UTC');
+            // return moment.tz(this, 'MM/DD/YYYY', 'UTC');
         } else {
             return this.hours(0).minutes(0).seconds(0).milliseconds(0).add(this.utcOffset(), "minute").utcOffset(0);
         }

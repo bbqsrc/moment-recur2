@@ -8,17 +8,20 @@ module.exports = function (config) {
       'bower_components/moment/moment.js',
       'bower_components/moment-timezone/builds/moment-timezone-with-data.js',
       'moment-recur.js',
-      'tests/spec/*.js',
+      'tests/spec/*.js'
     ],
+    preprocessors: {
+      'moment.recur.js': ['coverage']
+    },
     exclude: [],
     port: 8080,
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
-    frameworks: ['jasmine'],
     plugins: [
       'karma-jasmine',
-      'karma-chrome-launcher'
+      'karma-chrome-launcher',
+      'karma-coverage'
     ],
     singleRun: false
   });
