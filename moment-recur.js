@@ -12,7 +12,7 @@
     hasModule = (typeof module !== "undefined" && module !== null) && (module.exports != null);
 
     if (typeof moment === 'undefined') {
-      throw Error("Can't find moment");
+        throw Error("Can't find moment");
     }
 
     // Interval object for creating and matching interval-based rules
@@ -63,8 +63,8 @@
         }
 
         return {
-          create: createInterval,
-          match: matchInterval
+            create: createInterval,
+            match: matchInterval
         };
     })();
 
@@ -76,8 +76,8 @@
             "daysOfWeek": "day",
             "weeksOfMonth": "monthWeek",
             "weeksOfMonthByDay": "monthWeekByDay",
-            "weeksOfYear": "week",
-            "monthsOfYear": "month"
+            "weeksOfYear": "weeks",
+            "monthsOfYear": "months"
         };
 
         // Dictionary of ranges based on measures
@@ -136,8 +136,8 @@
 
             // Make sure the listed units are in the measure's range
             checkRange( ranges[measure].low,
-                        ranges[measure].high,
-                        keys );
+                ranges[measure].high,
+                keys );
 
             return {
                 measure: measure,
@@ -449,11 +449,11 @@
         // Recur Object Constrcutor
         var Recur = function(options) {
             if ( options.start ) {
-                this.start = moment(options.start).dateOnly();
+                this.start = moment(options.start, 'MM/DD/YYYY').dateOnly();
             }
 
             if ( options.end ) {
-                this.end = moment(options.end).dateOnly();
+                this.end = moment(options.end, 'MM/DD/YYYY').dateOnly();
             }
 
             // Our list of rules, all of which must match
@@ -510,7 +510,7 @@
 
         // Get/Set a temporary from date
         Recur.prototype.fromDate = function(date) {
-             if (date === null) {
+            if (date === null) {
                 this.from = null;
                 return this;
             }
@@ -614,7 +614,7 @@
 
         // Attempts to match a date to the rules
         Recur.prototype.matches = function(dateToMatch, ignoreStartEnd) {
-            var date = moment(dateToMatch).dateOnly();
+            var date = moment(dateToMatch, 'MM/DD/YYYY').dateOnly();
 
             if (!date.isValid()) {
                 throw Error("Invalid date supplied to match method: " + dateToMatch);
@@ -740,7 +740,7 @@
     // Plugin for removing all time information from a given date
     moment.fn.dateOnly = function() {
         if (this.tz && typeof(moment.tz) == 'function' ) {
-            return moment.tz(this.format('YYYY-MM-DD'), 'UTC');
+            return moment.tz(this, 'M/D/YYYY', 'UTC');
         } else {
             return this.hours(0).minutes(0).seconds(0).milliseconds(0).add(this.utcOffset(), "minute").utcOffset(0);
         }

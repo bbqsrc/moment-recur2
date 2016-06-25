@@ -1,6 +1,6 @@
 'use strict';
 
-// Getting rid of jshint warnings (the yellow lines and exclaimation points are annoying)
+// Getting rid of jshint warnings (the yellow lines and exclamation points are annoying)
 var jasmine = jasmine, describe = describe, it = it, moment = moment, expect = expect, beforeEach = beforeEach;
 
 
