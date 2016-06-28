@@ -90,7 +90,7 @@
             "monthsOfYear"      : { low: 0, high: 11 }
         };
 
-        // Private function for cehcking the range of calendar values
+        // Private function for checking the range of calendar values
         function checkRange(low, high, list) {
             list.forEach(function(v) {
                 if ( v < low || v > high ) {
