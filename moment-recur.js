@@ -136,8 +136,8 @@
 
             // Make sure the listed units are in the measure's range
             checkRange( ranges[measure].low,
-                ranges[measure].high,
-                keys );
+                        ranges[measure].high,
+                        keys );
 
             return {
                 measure: measure,
@@ -264,8 +264,8 @@
             return this;
         }
 
-        // Private method to get next, previous or all occurances
-        function getOccurances(num, format, type) {
+        // Private method to get next, previous or all occurrences
+        function getOccurrences(num, format, type) {
             var currentDate, date;
             var dates = [];
 
@@ -274,11 +274,11 @@
             }
 
             if ( !this.start && !this.from ) {
-                throw Error("Cannot get occurances without start or from date.");
+                throw Error("Cannot get occurrences without start or from date.");
             }
 
             if ( type === "all" && !this.end ) {
-                throw Error("Cannot get all occurances without an end date.");
+                throw Error("Cannot get all occurrences without an end date.");
             }
 
             if( !!this.end && (this.start > this.end) ) {
@@ -310,14 +310,15 @@
                     currentDate.subtract(1, "day");
                 }
 
-                //console.log("Match: " + currentDate.format("L") + " - " + this.matches(currentDate, true));
-
                 // Don't match outside the date if generating all dates within start/end
+                // ToDo: understand why finding "next" would not take the end date into consideration
                 if (this.matches(currentDate, (type==="all"?false:true))) {
                     date = format ? currentDate.format(format) : currentDate.clone();
                     dates.push(date);
                 }
-                if(type === "all" && currentDate >= this.end) {
+                // if(type === "all" && currentDate >= this.end) {
+                // when searching for "all" or "next" dates, if the end date occurs prior to next date, exit the loop
+                if(currentDate >= this.end) {
                     break;
                 }
             }
@@ -379,7 +380,7 @@
                     return "weeks";
 
                 case "month":
-                    return "months";
+                    return "month";
 
                 case "year":
                     return "years";
@@ -407,7 +408,7 @@
             }
         }
 
-        // Private funtion to see if all rules matche
+        // Private function to see if all rules match
         function matchAllRules(rules, date, start) {
             var i, len, rule, type;
 
@@ -486,7 +487,7 @@
             }
 
             if (date) {
-                this.start = moment(date).dateOnly();
+                this.start = moment(date, 'MM/DD/YYYY').dateOnly();
                 return this;
             }
 
@@ -501,7 +502,7 @@
             }
 
             if (date) {
-                this.end = moment(date).dateOnly();
+                this.end = moment(date, 'MM/DD/YYYY').dateOnly();
                 return this;
             }
 
@@ -516,7 +517,7 @@
             }
 
             if (date) {
-                this.from = moment(date).dateOnly();
+                this.from = moment(date, 'MM/DD/YYYY').dateOnly();
                 return this;
             }
 
@@ -527,11 +528,11 @@
         Recur.prototype.save = function() {
             var data = {};
 
-            if (this.start && moment(this.start).isValid()) {
+            if (this.start && moment(this.start, 'MM/DD/YYYY').isValid()) {
                 data.start = this.start.format("L");
             }
 
-            if (this.end && moment(this.end).isValid()) {
+            if (this.end && moment(this.end, 'MM/DD/YYYY').isValid()) {
                 data.end = this.end.format("L");
             }
 
@@ -570,7 +571,7 @@
 
         // Creates an exception date to prevent matches, even if rules match
         Recur.prototype.except = function(date) {
-            date = moment(date).dateOnly();
+            date = moment(date, 'MM/DD/YYYY').dateOnly();
             this.exceptions.push(date);
             return this;
         };
@@ -578,7 +579,7 @@
         // Forgets rules (by passing measure) and exceptions (by passing date)
         Recur.prototype.forget = function(dateOrRule) {
             var i, len;
-            var whatMoment = moment(dateOrRule);
+            var whatMoment = moment(dateOrRule, 'MM/DD/YYYY');
 
             // If valid date, try to remove it from exceptions
             if (whatMoment.isValid()) {
@@ -632,17 +633,17 @@
 
         // Get next N occurances
         Recur.prototype.next = function(num, format) {
-            return getOccurances.call(this, num, format, "next");
+            return getOccurrences.call(this, num, format, "next");
         };
 
         // Get previous N occurances
         Recur.prototype.previous = function(num, format) {
-            return getOccurances.call(this, num, format, "previous");
+            return getOccurrences.call(this, num, format, "previous");
         };
 
         // Get all occurances between start and end date
         Recur.prototype.all = function(format) {
-            return getOccurances.call(this, null, format, "all");
+            return getOccurrences.call(this, null, format, "all");
         };
 
         // Create the measure functions (days(), months(), daysOfMonth(), monthsOfYear(), etc.)
@@ -740,7 +741,7 @@
     // Plugin for removing all time information from a given date
     moment.fn.dateOnly = function() {
         if (this.tz && typeof(moment.tz) == 'function' ) {
-            return moment.tz(this, 'M/D/YYYY', 'UTC');
+            return moment.tz(this.format('YYYY-MM-DD'), 'UTC');
         } else {
             return this.hours(0).minutes(0).seconds(0).milliseconds(0).add(this.utcOffset(), "minute").utcOffset(0);
         }
