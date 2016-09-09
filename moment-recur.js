@@ -207,6 +207,41 @@
             "monthsOfYear": "monthOfYear"
         };
 
+        var recurPattern = {
+            index: 0,
+            pattern: null,
+
+            nextDate: function( fromDate ) {
+                if(this.index >= this.pattern.length) {
+                    fromDate.add(1, "month");
+                    this.index = 0;
+                }
+                
+                var day = this.pattern[this.index];
+
+                fromDate.day(day);
+                this.index++;
+            },
+
+            rebuild: function( rules ) {
+                this.reset();
+                var rule = this.rules[0];
+                var list = rule.units;
+                if (rules.length == 1 && ruleTypes[rules[0].measure] == "daysOfMonth") {
+                    var days = Object.keys( rules );
+
+                    // Set up the pattern
+                    if(days && days.length > 0) {
+                        this.pattern = days;
+                    }
+                }
+            },
+
+            reset: function() {
+                this.index = 0;
+                this.pattern = null;
+            }
+        };
 
         /////////////////////////////////
         // Private Methods             //
@@ -293,6 +328,9 @@
             // Start from the from date, or the start date if from is not set.
             currentDate = (this.from || this.start).clone();
 
+            // Reset the pattern builder, which dramatically speeds up queries
+            recurPattern.rebuild(this.rules);
+
             // Include the initial date to the results if wanting all dates
             if(type === "all") {
                 if (this.matches(currentDate, false)) {
@@ -303,12 +341,7 @@
 
             // Get the next N dates, if num is null then infinite
             while(dates.length < (num===null ? dates.length+1 : num)) {
-                if (type === "next" || type === "all") {
-                    currentDate.add(1, "day");
-                }
-                else {
-                    currentDate.subtract(1, "day");
-                }
+                getNextDate( currentDate, type );
 
                 // Don't match outside the date if generating all dates within start/end
                 // ToDo: understand why finding "next" would not take the end date into consideration
@@ -330,6 +363,23 @@
         ///////////////////////
         // Private Functions //
         ///////////////////////
+        
+
+        function getNextDate( currentDate, type ) {
+                if(type === "all") {
+                    if (recurPattern.pattern !== null) {
+                        recurPattern.nextDate( currentDate );
+                    } else {
+                        currentDate.add(1, "day");
+                    } 
+                }
+                else if (type === "next") {
+                    currentDate.add(1, "day");
+                }
+                else {
+                    currentDate.subtract(1, "day");
+                }
+        }
 
         // Private function to see if a date is within range of start/end
         function inRange(start, end, date) {
