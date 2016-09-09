@@ -216,7 +216,6 @@
                     fromDate.add(1, "month");
                     this.index = 0;
                 }
-                
                 var day = this.pattern[this.index];
 
                 fromDate.day(day);
@@ -225,7 +224,7 @@
 
             rebuild: function( rules ) {
                 this.reset();
-                var rule = this.rules[0];
+                var rule = rules[0];
                 var list = rule.units;
                 if (rules.length == 1 && ruleTypes[rules[0].measure] == "daysOfMonth") {
                     var days = Object.keys( rules );
