@@ -210,29 +210,67 @@
         var recurPattern = {
             index: 0,
             pattern: null,
+            rules: [],
 
-            nextDate: function( fromDate ) {
-                if(this.index >= this.pattern.length) {
-                    fromDate.add(1, "month");
-                    this.index = 0;
+            get measure() {
+                return ruleTypes[rules[0].measure];
+            },
+
+            nextDate: function( workingDate ) {
+                var day;
+
+                if(this.measure == "daysOfMonth") {
+                    if(this.index >= this.pattern.length) {
+                        workingDate.add(1, "month");
+                        this.index = 0;
+                    }
+                    day = this.pattern[this.index];
+
+                    workingDate.date(day);
+
+                } else if(this.measure == "daysOfWeek") {
+                    // Sunday = 0, Saturday = 6
+                    var diff = 0;
+                    if(this.index >= this.pattern.length) {
+                        diff += 7;  // Jump ahead by a week
+                        this.index = 0;
+                    }
+                    daydiff += this.pattern[this.index];
+
+                    workingDate.day( dayDiff );
                 }
-                var day = this.pattern[this.index];
 
-                fromDate.day(day);
                 this.index++;
             },
 
             rebuild: function( rules ) {
                 this.reset();
+
+                this.rules = rules;
+
+                var days;
                 var rule = rules[0];
                 var list = rule.units;
-                if (rules.length == 1 && ruleTypes[rules[0].measure] == "daysOfMonth") {
-                    var days = Object.keys( rules );
+                // var measure = ruleTypes[rule.measure];
+
+                if (rules.length == 1 && this.measure == "daysOfMonth") {
+                    // Populate with the days in the rule (e.g. 1, 5, 31)
+                    days = Object.keys( rules );
 
                     // Set up the pattern
                     if(days && days.length > 0) {
                         this.pattern = days;
                     }
+
+                } else if (rules.length == 1 && this.measure == "daysOfWeek" ) {
+                    // Populate with the days of the week in the rule (e.g. 0, 1, 7)
+                    days = Object.keys( rules );
+
+                    // Set up the pattern
+                    if(days && days.length > 0) {
+                        this.pattern = days;
+                    }
+
                 }
             },
 
