@@ -213,7 +213,7 @@
             rules: [],
 
             get measure() {
-                return ruleTypes[rules[0].measure];
+                return ruleTypes[this.rules[0].measure];
             },
 
             nextDate: function( workingDate ) {
