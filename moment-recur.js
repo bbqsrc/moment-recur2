@@ -210,7 +210,20 @@
         var recurPattern = {
             index: 0,
             pattern: null,
+            _interval: null,
             rules: [],
+
+            set interval( rule ) {
+                var keys = Object.keys( rule.units );
+                this._interval = {
+                    measure: rule.measure,
+                    unit: keys[0]
+                };
+            },
+
+            get interval() {
+                return this._interval;
+            },
 
             get measure() {
                 return ruleTypes[this.rules[0].measure];
@@ -230,14 +243,13 @@
 
                 } else if(this.measure == "daysOfWeek") {
                     // Sunday = 0, Saturday = 6
-                    var diff = 0;
                     if(this.index >= this.pattern.length) {
-                        diff += 7;  // Jump ahead by a week
+                        workingDate.add( this.interval.unit, this.interval.measure);
                         this.index = 0;
                     }
-                    daydiff += this.pattern[this.index];
+                    day = this.pattern[this.index];
 
-                    workingDate.day( dayDiff );
+                    workingDate.day( day );
                 }
 
                 this.index++;
@@ -262,13 +274,21 @@
                         this.pattern = days;
                     }
 
-                } else if (rules.length == 1 && this.measure == "daysOfWeek" ) {
+                } else if ((rules.length == 1 || rules.length == 2) && this.measure == "daysOfWeek" ) {
                     // Populate with the days of the week in the rule (e.g. 0, 1, 7)
                     days = Object.keys( rules );
 
                     // Set up the pattern
                     if(days && days.length > 0) {
                         this.pattern = days;
+                    }
+                    if(rules.length == 1) {
+                        this.interval = {
+                            units: { 1: true },
+                            measure: "weeks"
+                        };
+                    } else {
+                        this.interval = rules[1];
                     }
 
                 }
