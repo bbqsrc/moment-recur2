@@ -3,7 +3,7 @@
 
 require("moment-timezone")
 const expect = require("chai").expect
-const moment = require("../../moment-recur")
+const moment = require("../lib")
 
 // TOTEST:
 // Export Rules
