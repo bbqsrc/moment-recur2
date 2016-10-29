@@ -350,6 +350,17 @@ describe("Future Dates", function() {
 
     expect(nextDate.length).to.equal(0)
   })
+
+  it("should not show dates after the end date", function() {
+    const recurrence = moment("2014-01-01").recur().every(2)
+        .days().endDate("2014-01-05")
+
+    const nextDates = recurrence.next(3, FORMAT)
+
+    expect(nextDates.length).to.equal(2)
+    expect(nextDates[0]).to.equal("2014-01-03")
+    expect(nextDates[1]).to.equal("2014-01-05")
+  })
 })
 
 describe("Previous Dates", function() {
