@@ -4,6 +4,8 @@ moment-recur2 is a recurring date plugin for [momentjs](http://momentjs.com/). T
 
 It is a fork of the original moment-recur2 with a focus on ISO6801 compliance.
 
+### Example
+
 ```js
 const interval = moment("2014-01-01").recur().every(2).days()
 interval.matches("2014-01-03") // true
