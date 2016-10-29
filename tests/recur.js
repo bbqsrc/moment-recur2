@@ -9,67 +9,66 @@ const moment = require("../../moment-recur")
 // Export Rules
 // Repeats function
 
-const startDate = "01/01/2013"
-const endDate = "01/01/2014"
-const FORMAT = "MM/DD/YYYY"
-const ISO_FMT = "YYYY-MM-DD"
+const FORMAT = "YYYY-MM-DD"
+const startDate = "2013-01-01"
+const endDate = "2014-01-01"
 
 describe("Creating a recurring moment", function() {
   const nowMoment = moment()
-  const nowDate = nowMoment.format("L")
+  const nowDate = nowMoment.format(FORMAT)
 
   it("from moment constructor, with options parameter - moment.recur(options)", function() {
     const recur = moment.recur({ start: startDate, end: endDate })
 
-    expect(recur.start.format("L")).to.equal(startDate)
-    expect(recur.end.format("L")).to.equal(endDate)
+    expect(recur.start.format(FORMAT)).to.equal(startDate)
+    expect(recur.end.format(FORMAT)).to.equal(endDate)
   })
 
   it("from moment constructor, with start parameter only - moment.recur(start)", function() {
     const recur = moment.recur(startDate)
 
-    expect(recur.start.format("L")).to.equal(startDate)
+    expect(recur.start.format(FORMAT)).to.equal(startDate)
   })
 
   it("from moment constructor, with start and end parameters - moment.recur(start, end)", function() {
     const recur = moment.recur(startDate, endDate)
 
-    expect(recur.start.format("L")).to.equal(startDate)
-    expect(recur.end.format("L")).to.equal(endDate)
+    expect(recur.start.format(FORMAT)).to.equal(startDate)
+    expect(recur.end.format(FORMAT)).to.equal(endDate)
   })
 
   it("from moment function, with options parameter - moment().recur(options)", function() {
     const recur = moment().recur({ start: startDate, end: endDate })
 
-    expect(recur.start.format("L")).to.equal(startDate)
-    expect(recur.end.format("L")).to.equal(endDate)
+    expect(recur.start.format(FORMAT)).to.equal(startDate)
+    expect(recur.end.format(FORMAT)).to.equal(endDate)
   })
 
   it("from moment function, with start and end parameters - moment().recur(start, end)", function() {
     const recur = moment().recur(startDate, endDate)
 
-    expect(recur.start.format("L")).to.equal(startDate)
-    expect(recur.end.format("L")).to.equal(endDate)
+    expect(recur.start.format(FORMAT)).to.equal(startDate)
+    expect(recur.end.format(FORMAT)).to.equal(endDate)
   })
 
   it("from moment function, with starting moment and end parameter - moment(start).recur(end)", function() {
     const recur = moment(startDate, FORMAT).recur(endDate)
 
-    expect(recur.start.format("L")).to.equal(startDate)
-    expect(recur.end.format("L")).to.equal(endDate)
+    expect(recur.start.format(FORMAT)).to.equal(startDate)
+    expect(recur.end.format(FORMAT)).to.equal(endDate)
   })
 
   it("from moment function, starting now, with end parameter  - moment().recur(end)", function() {
     const recur = nowMoment.recur(endDate)
 
-    expect(recur.start.format("L")).to.equal(nowDate)
-    expect(recur.end.format("L")).to.equal(endDate)
+    expect(recur.start.format(FORMAT)).to.equal(nowDate)
+    expect(recur.end.format(FORMAT)).to.equal(endDate)
   })
 
   it("from moment function, starting now - moment().recur()", function() {
     const recur = nowMoment.recur()
 
-    expect(recur.start.format("L")).to.equal(nowDate)
+    expect(recur.start.format(FORMAT)).to.equal(nowDate)
   })
 
   it("from moment function, with starting moment and end parameter, which is a moment object - moment(start).recur(end)", function() {
@@ -77,8 +76,8 @@ describe("Creating a recurring moment", function() {
     const endMoment = moment(endDate, FORMAT)
     const recur = moment(startMoment, FORMAT).recur(endMoment)
 
-    expect(recur.start.format("L")).to.equal(startDate)
-    expect(recur.end.format("L")).to.equal(endDate)
+    expect(recur.start.format(FORMAT)).to.equal(startDate)
+    expect(recur.end.format(FORMAT)).to.equal(endDate)
   })
 })
 
@@ -91,17 +90,17 @@ describe("Setting", function() {
 
   it("'start' should be getable/setable with startDate()", function() {
     recur.startDate(startDate)
-    expect(recur.startDate().format("L")).to.equal(startDate)
+    expect(recur.startDate().format(FORMAT)).to.equal(startDate)
   })
 
   it("'end' should be getable/setable with endDate()", function() {
     recur.endDate(endDate)
-    expect(recur.endDate().format("L")).to.equal(endDate)
+    expect(recur.endDate().format(FORMAT)).to.equal(endDate)
   })
 
   it("'from' should be getable/setable with fromDate()", function() {
     recur.fromDate(startDate)
-    expect(recur.fromDate().format("L")).to.equal(startDate)
+    expect(recur.fromDate().format(FORMAT)).to.equal(startDate)
   })
 })
 
@@ -204,24 +203,24 @@ describe("The Calendar Interval", function() {
     })
 
     it("should work with timezones", function() {
-      const recurrence = moment.tz("2015-01-25", ISO_FMT, "America/Vancouver").recur().every(["Sunday", 1]).daysOfWeek()
-      const check = moment.tz("2015-02-01", ISO_FMT, "Asia/Hong_Kong")
+      const recurrence = moment.tz("2015-01-25", FORMAT, "America/Vancouver").recur().every(["Sunday", 1]).daysOfWeek()
+      const check = moment.tz("2015-02-01", FORMAT, "Asia/Hong_Kong")
 
       expect(recurrence.matches(check)).to.equal(true)
     })
   })
 
   it("daysOfMonth should work", function() {
-    const recurrence = moment("2015-01-01", ISO_FMT).recur().every([1, 10]).daysOfMonth()
+    const recurrence = moment("2015-01-01", FORMAT).recur().every([1, 10]).daysOfMonth()
 
-    expect(recurrence.matches(moment("2015-01-01", ISO_FMT))).to.equal(true)
-    expect(recurrence.matches(moment("2015-01-02", ISO_FMT))).to.equal(false)
-    expect(recurrence.matches(moment("2015-01-10", ISO_FMT))).to.equal(true)
-    expect(recurrence.matches(moment("2015-01-15", ISO_FMT))).to.equal(false)
-    expect(recurrence.matches(moment("2015-02-01", ISO_FMT))).to.equal(true)
-    expect(recurrence.matches(moment("2015-02-02", ISO_FMT))).to.equal(false)
-    expect(recurrence.matches(moment("2015-02-10", ISO_FMT))).to.equal(true)
-    expect(recurrence.matches(moment("2015-02-15", ISO_FMT))).to.equal(false)
+    expect(recurrence.matches(moment("2015-01-01", FORMAT))).to.equal(true)
+    expect(recurrence.matches(moment("2015-01-02", FORMAT))).to.equal(false)
+    expect(recurrence.matches(moment("2015-01-10", FORMAT))).to.equal(true)
+    expect(recurrence.matches(moment("2015-01-15", FORMAT))).to.equal(false)
+    expect(recurrence.matches(moment("2015-02-01", FORMAT))).to.equal(true)
+    expect(recurrence.matches(moment("2015-02-02", FORMAT))).to.equal(false)
+    expect(recurrence.matches(moment("2015-02-10", FORMAT))).to.equal(true)
+    expect(recurrence.matches(moment("2015-02-15", FORMAT))).to.equal(false)
   })
 
   it("weeksOfMonth should work", function() {
@@ -235,7 +234,7 @@ describe("The Calendar Interval", function() {
   it("weeksOfYear should work", function() {
     const recurrence = moment.recur().every(20).weekOfYear()
 
-    expect(recurrence.matches(moment("05/14/2014", FORMAT))).to.equal(true)
+    expect(recurrence.matches(moment("2014-05-14", FORMAT))).to.equal(true)
     expect(recurrence.matches(moment(startDate, FORMAT))).to.equal(false)
   })
 
@@ -250,36 +249,36 @@ describe("The Calendar Interval", function() {
     const valentines = moment.recur().every(14).daysOfMonth()
         .every("February").monthsOfYear()
 
-    expect(valentines.matches(moment("02/14/2014", FORMAT))).to.equal(true)
+    expect(valentines.matches(moment("2014-02-14", FORMAT))).to.equal(true)
     expect(valentines.matches(moment(startDate, FORMAT))).to.equal(false)
   })
 
   it("can be passed units, without every()", function() {
     const recurrence = moment.recur().daysOfMonth([1, 3])
 
-    expect(recurrence.matches("01/01/2014")).to.equal(true)
-    expect(recurrence.matches("01/03/2014")).to.equal(true)
-    expect(recurrence.matches("01/06/2014")).to.equal(false)
+    expect(recurrence.matches("2014-01-01")).to.equal(true)
+    expect(recurrence.matches("2014-01-03")).to.equal(true)
+    expect(recurrence.matches("2014-01-06")).to.equal(false)
   })
 })
 
 describe("Rules", function() {
   it("should be overridden when duplicated", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur().every(1).day()
+    const recurrence = moment(endDate, FORMAT).recur().every(1).day()
 
     recurrence.every(2).days()
     expect(recurrence.rules.length).to.equal(1)
   })
 
   it("should be forgettable", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur().every(1).day()
+    const recurrence = moment(endDate, FORMAT).recur().every(1).day()
 
     recurrence.forget("days")
     expect(recurrence.rules.length).to.equal(0)
   })
 
   it("should be possible to see if one exists", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur().every(1).day()
+    const recurrence = moment(endDate, FORMAT).recur().every(1).day()
 
     expect(recurrence.hasRule("days")).to.equal(true)
     expect(recurrence.hasRule("month")).to.equal(false)
@@ -325,29 +324,29 @@ describe("weeksOfMonthByDay()", function() {
 
 describe("Future Dates", function() {
   it("can be generated", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur().every(2).days()
-    const nextDates = recurrence.next(3, "L")
+    const recurrence = moment(endDate, FORMAT).recur().every(2).days()
+    const nextDates = recurrence.next(3, FORMAT)
 
     expect(nextDates.length).to.equal(3)
-    expect(nextDates[0]).to.equal("01/03/2014")
-    expect(nextDates[1]).to.equal("01/05/2014")
-    expect(nextDates[2]).to.equal("01/07/2014")
+    expect(nextDates[0]).to.equal("2014-01-03")
+    expect(nextDates[1]).to.equal("2014-01-05")
+    expect(nextDates[2]).to.equal("2014-01-07")
   })
 
   it("can start from a temporary 'from' date", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur().every(2)
-      .days().fromDate("02/05/2014")
-    const nextDates = recurrence.next(3, "L")
+    const recurrence = moment(endDate, FORMAT).recur().every(2)
+      .days().fromDate("2014-02-05")
+    const nextDates = recurrence.next(3, FORMAT)
 
     expect(nextDates.length).to.equal(3)
-    expect(nextDates[0]).to.equal("02/06/2014")
-    expect(nextDates[1]).to.equal("02/08/2014")
-    expect(nextDates[2]).to.equal("02/10/2014")
+    expect(nextDates[0]).to.equal("2014-02-06")
+    expect(nextDates[1]).to.equal("2014-02-08")
+    expect(nextDates[2]).to.equal("2014-02-10")
   })
 
   it("will report no date if the end date occurs prior to the next date", function() {
-    const recurrence = moment().recur("01/01/2014", "01/08/2014").every(10).days()
-    const nextDate = recurrence.next(1, "L")
+    const recurrence = moment().recur(endDate, "2014-01-08").every(10).days()
+    const nextDate = recurrence.next(1, FORMAT)
 
     expect(nextDate.length).to.equal(0)
   })
@@ -355,52 +354,52 @@ describe("Future Dates", function() {
 
 describe("Previous Dates", function() {
   it("can be generated", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur().every(2).days()
-    const nextDates = recurrence.previous(3, "L")
+    const recurrence = moment(endDate, FORMAT).recur().every(2).days()
+    const nextDates = recurrence.previous(3, FORMAT)
 
     expect(nextDates.length).to.equal(3)
-    expect(nextDates[0]).to.equal("12/30/2013")
-    expect(nextDates[1]).to.equal("12/28/2013")
-    expect(nextDates[2]).to.equal("12/26/2013")
+    expect(nextDates[0]).to.equal("2013-12-30")
+    expect(nextDates[1]).to.equal("2013-12-28")
+    expect(nextDates[2]).to.equal("2013-12-26")
   })
 })
 
 describe("All Dates", function() {
   it("can be generated", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur("01/07/2014").every(2).days()
-    const allDates = recurrence.all("L")
+    const recurrence = moment(endDate, FORMAT).recur("2014-01-07").every(2).days()
+    const allDates = recurrence.all(FORMAT)
 
     expect(allDates.length).to.equal(4)
-    expect(allDates[0]).to.equal("01/01/2014")
-    expect(allDates[1]).to.equal("01/03/2014")
-    expect(allDates[2]).to.equal("01/05/2014")
-    expect(allDates[3]).to.equal("01/07/2014")
+    expect(allDates[0]).to.equal(endDate)
+    expect(allDates[1]).to.equal("2014-01-03")
+    expect(allDates[2]).to.equal("2014-01-05")
+    expect(allDates[3]).to.equal("2014-01-07")
   })
 
   it("can start from a temporary 'from' date", function() {
-    const recurrence = moment().recur("01/01/2014", "01/08/2014").every(2)
-      .days().fromDate("01/05/2014")
-    const allDates = recurrence.all("L")
+    const recurrence = moment().recur(endDate, "2014-01-08").every(2)
+      .days().fromDate("2014-01-05")
+    const allDates = recurrence.all(FORMAT)
 
     expect(allDates.length).to.equal(2)
-    expect(allDates[0]).to.equal("01/05/2014")
-    expect(allDates[1]).to.equal("01/07/2014")
+    expect(allDates[0]).to.equal("2014-01-05")
+    expect(allDates[1]).to.equal("2014-01-07")
   })
 
   it("should throw error if start date is after end date", function() {
-    const recurrence = moment().recur("07/26/2017", "08/01/2013").every(2).days()
+    const recurrence = moment().recur("2017-07-26", "2013-08-01").every(2).days()
 
     expect(function() {
-      recurrence.all("L")
+      recurrence.all(FORMAT)
     }).to.throw("Start date cannot be later than end date.")
   })
 
   it("should only generate a single date when start date and end date are the same", function() {
-    const recurrence = moment().recur("01/01/2014", "01/01/2014").every(1).days()
-    const allDates = recurrence.all("L")
+    const recurrence = moment().recur(endDate, endDate).every(1).days()
+    const allDates = recurrence.all(FORMAT)
 
     expect(allDates.length).to.equal(1)
-    expect(allDates[0]).to.equal("01/01/2014")
+    expect(allDates[0]).to.equal(endDate)
   })
 })
 
@@ -411,7 +410,7 @@ describe("Exceptions", function() {
     mo = moment(startDate, FORMAT)
     exception = mo.clone().add(3, "day")
     recur = mo.clone().recur().every(1, "days")
-    exceptionWithTz = moment.tz(exception.format(ISO_FMT), "Asia/Hong_Kong")
+    exceptionWithTz = moment.tz(exception.format(FORMAT), "Asia/Hong_Kong")
   })
 
   it("should prevent exception days from matching", function() {
@@ -438,7 +437,7 @@ describe("Exceptions with weeks", function() {
     mo = moment(startDate, FORMAT)
     exception = mo.clone().add(7, "day")
     recur = mo.clone().recur().every(1, "weeks")
-    exceptionWithTz = moment.tz(exception.format(ISO_FMT), "Asia/Hong_Kong")
+    exceptionWithTz = moment.tz(exception.format(FORMAT), "Asia/Hong_Kong")
   })
 
   it("should not match on the exception day", function() {
@@ -457,29 +456,30 @@ describe("Exceptions with weeks", function() {
 describe("Options", function() {
   it("should be importable", function() {
     const recurrence = moment().recur({
-      start: "01/01/2014",
-      end: "12/31/2014",
+      start: endDate,
+      end: "2014-12-31",
       rules: [
           { units: { 2: true }, measure: "days" }
       ],
-      exceptions: ["01/05/2014"]
+      exceptions: ["2014-01-05"]
     })
 
-    expect(recurrence.startDate().format("L")).to.equal("01/01/2014")
-    expect(recurrence.endDate().format("L")).to.equal("12/31/2014")
+    expect(recurrence.startDate().format(FORMAT)).to.equal(endDate)
+    expect(recurrence.endDate().format(FORMAT)).to.equal("2014-12-31")
     expect(recurrence.rules.length).to.equal(1)
     expect(recurrence.exceptions.length).to.equal(1)
-    expect(recurrence.matches("01/03/2014")).to.equal(true)
-    expect(recurrence.matches("01/05/2014")).to.equal(false)
+    expect(recurrence.matches("2014-01-03")).to.equal(true)
+    expect(recurrence.matches("2014-01-05")).to.equal(false)
   })
 
   it("should be exportable", function() {
-    const recurrence = moment("01/01/2014", FORMAT).recur("12/31/2014").every(2, "days").except("01/05/2014")
+    const recurrence = moment(endDate, FORMAT)
+        .recur("2014-12-31").every(2, "days").except("2014-01-05")
     const data = recurrence.save()
 
-    expect(data.start).to.equal("01/01/2014")
-    expect(data.end).to.equal("12/31/2014")
-    expect(data.exceptions[0]).to.equal("01/05/2014")
+    expect(data.start).to.equal(endDate)
+    expect(data.end).to.equal("2014-12-31")
+    expect(data.exceptions[0]).to.equal("2014-01-05")
     expect(data.rules[0].units[2]).to.equal(true)
     expect(data.rules[0].measure).to.equal("days")
   })
