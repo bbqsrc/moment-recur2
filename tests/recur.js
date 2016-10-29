@@ -478,7 +478,7 @@ describe("Options", function() {
     expect(recurrence.startDate().format(FORMAT)).to.equal(endDate)
     expect(recurrence.endDate().format(FORMAT)).to.equal("2014-12-31")
     expect(recurrence.rules.length).to.equal(1)
-    expect(recurrence.exceptions.length).to.equal(1)
+    expect(recurrence.excepted.length).to.equal(1)
     expect(recurrence.matches("2014-01-03")).to.equal(true)
     expect(recurrence.matches("2014-01-05")).to.equal(false)
   })
@@ -490,7 +490,7 @@ describe("Options", function() {
 
     expect(data.start).to.equal(endDate)
     expect(data.end).to.equal("2014-12-31")
-    expect(data.exceptions[0]).to.equal("2014-01-05")
+    expect(data.excepted[0]).to.equal("2014-01-05")
     expect(data.rules[0].units[2]).to.equal(true)
     expect(data.rules[0].measure).to.equal("days")
   })

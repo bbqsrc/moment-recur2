@@ -292,7 +292,7 @@ moment().recur({
   rules: [
     { units: { 2: true }, measure: "days" }
   ],
-  exceptions: ["2014-01-05"]
+  excepted: ["2014-01-05"]
 })
 ```
 
