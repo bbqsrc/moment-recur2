@@ -1,0 +1,15 @@
+moment-recur2 is a fork of moment-recur, authored in commit chronological order:
+
+Brendan Molloy <brendan@bbqsrc.net>
+
+---
+
+Forked from https://github.com/c-trimm/moment-recur:
+
+Casey Trimm <me@caseytrimm.com>
+
+Patches incorporated from other forks:
+
+https://github.com/HDSLabs/moment-recur
+https://github.com/jonathanrevell/moment-recur
+
