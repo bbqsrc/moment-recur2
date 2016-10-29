@@ -1,5 +1,7 @@
 # moment-recur2
 
+[![Build Status](https://travis-ci.org/bbqsrc/moment-recur2.svg?branch=master)](https://travis-ci.org/bbqsrc/moment-recur2)
+
 moment-recur2 is a recurring date plugin for [momentjs](http://momentjs.com/). This plugin handles dates only time information is discarded.
 
 It is a fork of the original moment-recur2 with a focus on ISO6801 compliance.
