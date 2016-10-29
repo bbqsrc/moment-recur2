@@ -3,11 +3,11 @@ const moment = require("moment")
 // Interval object for creating and matching interval-based rules
 const Interval = (function() {
   function createInterval(units, measure) {
-        // Make sure all of the units are integers greater than 0.
+    // Make sure all of the units are integers greater than 0.
     for (const unit in units) {
       if (units.hasOwnProperty(unit)) {
         if (parseInt(unit, 10) <= 0) {
-          throw Error("Intervals must be greater than zero")
+          throw new Error("Intervals must be greater than zero")
         }
       }
     }
@@ -19,8 +19,8 @@ const Interval = (function() {
   }
 
   function matchInterval(type, units, start, date) {
-        // Get the difference between the start date and the provided date,
-        // using the required measure based on the type of rule'
+    // Get the difference between the start date and the provided date,
+    // using the required measure based on the type of rule'
     let diff = null
 
     if (date.isBefore(start)) {
@@ -28,17 +28,17 @@ const Interval = (function() {
     } else {
       diff = date.diff(start, type, true)
     }
-    if (type == "days") {
-            // if we are dealing with days, we deal with whole days only.
-      diff = parseInt(diff)
+    if (type === "days") {
+      // if we are dealing with days, we deal with whole days only.
+      diff = parseInt(diff, 10)
     }
 
-        // Check to see if any of the units provided match the date
+    // Check to see if any of the units provided match the date
     for (let unit in units) {
       if (units.hasOwnProperty(unit)) {
         unit = parseInt(unit, 10)
 
-                // If the units divide evenly into the difference, we have a match
+        // If the units divide evenly into the difference, we have a match
         if ((diff % unit) === 0) {
           return true
         }
@@ -55,8 +55,8 @@ const Interval = (function() {
 }())
 
 // Calendar object for creating and matching calendar-based rules
-const Calendar = (function(){
-    // Dictionary of unit types based on measures
+const Calendar = (function() {
+  // Dictionary of unit types based on measures
   const unitTypes = {
     daysOfMonth: "date",
     daysOfWeek: "day",
@@ -80,7 +80,7 @@ const Calendar = (function(){
   function checkRange(low, high, list) {
     list.forEach((v) => {
       if (v < low || v > high) {
-        throw Error(`Value should be in range ${ low } to ${ high}`)
+        throw new Error(`Value should be in range ${ low } to ${ high}`)
       }
     })
   }
@@ -108,46 +108,43 @@ const Calendar = (function(){
 
   function createCalendarRule(list, measure) {
     const keys = []
+    let units = Object.assign({}, list)
 
-        // Convert day/month names to numbers, if needed
+    // Convert day/month names to numbers, if needed
     if (measure === "daysOfWeek") {
-      list = namesToNumbers(list, "days")
+      units = namesToNumbers(units, "days")
     }
 
     if (measure === "monthsOfYear") {
-      list = namesToNumbers(list, "months")
+      units = namesToNumbers(units, "months")
     }
 
-    for (const key in list) {
-      if (hasOwnProperty.call(list, key)) {
+    for (const key in units) {
+      if (hasOwnProperty.call(units, key)) {
         keys.push(key)
-      } }
-
-        // Make sure the listed units are in the measure's range
-    checkRange(ranges[measure].low,
-                    ranges[measure].high,
-                    keys)
-
-    return {
-      measure: measure,
-      units: list
+      }
     }
+
+    // Make sure the listed units are in the measure's range
+    checkRange(ranges[measure].low, ranges[measure].high, keys)
+
+    return { measure, units }
   }
 
   function matchCalendarRule(measure, list, date) {
-        // Get the unit type (i.e. date, day, week, monthWeek, weeks, months)
+    // Get the unit type (i.e. date, day, week, monthWeek, weeks, months)
     const unitType = unitTypes[measure]
 
-        // Get the unit based on the required measure of the date
+    // Get the unit based on the required measure of the date
     let unit = date[unitType]()
 
-        // If the unit is in our list, return true, else return false
+    // If the unit is in our list, return true, else return false
     if (list[unit]) {
       return true
     }
 
-        // match on end of month days
-    if (unitType === "date" && unit == date.add(1, "months").date(0).format("D") && unit < 31) {
+    // match on end of month days
+    if (unitType === "date" && unit === date.add(1, "months").date(0).format("D") && unit < 31) {
       while (unit <= 31) {
         if (list[unit]) {
           return true
@@ -167,7 +164,7 @@ const Calendar = (function(){
 
 // The main Recur object to provide an interface for settings, rules, and matching
 const Recur = (function() {
-    // A dictionary used to match rule measures to rule types
+  // A dictionary used to match rule measures to rule types
   const ruleTypes = {
     days: "interval",
     weeks: "interval",
@@ -181,7 +178,7 @@ const Recur = (function() {
     monthsOfYear: "calendar"
   }
 
-    // a dictionary of plural and singular measures
+  // a dictionary of plural and singular measures
   const measures = {
     days: "day",
     weeks: "week",
@@ -218,10 +215,10 @@ const Recur = (function() {
       return ruleTypes[this.rules[0].measure]
     },
 
-    nextDate: function(workingDate) {
+    nextDate(workingDate) {
       let day
 
-      if (this.measure == "daysOfMonth") {
+      if (this.measure === "daysOfMonth") {
         if (this.index >= this.pattern.length) {
           workingDate.add(1, "month")
           this.index = 0
@@ -229,7 +226,7 @@ const Recur = (function() {
         day = this.pattern[this.index]
 
         workingDate.date(day)
-      } else if (this.measure == "daysOfWeek") {
+      } else if (this.measure === "daysOfWeek") {
                 // Sunday = 0, Saturday = 6
         if (this.index >= this.pattern.length) {
           workingDate.add(this.interval.unit, this.interval.measure)
@@ -243,33 +240,30 @@ const Recur = (function() {
       this.index++
     },
 
-    rebuild: function(rules) {
+    rebuild(rules) {
       this.reset()
 
       this.rules = rules
 
       let days
-      const rule = rules[0]
-      const list = rule.units
-            // var measure = ruleTypes[rule.measure]
 
-      if (rules.length == 1 && this.measure == "daysOfMonth") {
-                // Populate with the days in the rule (e.g. 1, 5, 31)
+      if (rules.length === 1 && this.measure === "daysOfMonth") {
+        // Populate with the days in the rule (e.g. 1, 5, 31)
         days = Object.keys(rules)
 
-                // Set up the pattern
+        // Set up the pattern
         if (days && days.length > 0) {
           this.pattern = days
         }
-      } else if ((rules.length == 1 || rules.length == 2) && this.measure == "daysOfWeek") {
-                // Populate with the days of the week in the rule (e.g. 0, 1, 7)
+      } else if ((rules.length === 1 || rules.length === 2) && this.measure === "daysOfWeek") {
+        // Populate with the days of the week in the rule (e.g. 0, 1, 7)
         days = Object.keys(rules)
 
-                // Set up the pattern
+        // Set up the pattern
         if (days && days.length > 0) {
           this.pattern = days
         }
-        if (rules.length == 1) {
+        if (rules.length === 1) {
           this.interval = {
             units: { 1: true },
             measure: "weeks"
@@ -280,24 +274,24 @@ const Recur = (function() {
       }
     },
 
-    reset: function() {
+    reset() {
       this.index = 0
       this.pattern = null
     }
   }
 
-    /////////////////////////////////
-    // Private Methods             //
-    // Must be called with .call() //
-    /////////////////////////////////
+  /////////////////////////////////
+  // Private Methods             //
+  // Must be called with .call() //
+  /////////////////////////////////
 
-    // Private method that tries to set a rule.
+  // Private method that tries to set a rule.
   function trigger() {
     let rule
     const ruleType = ruleTypes[this.measure]
 
     if (!(this instanceof Recur)) {
-      throw Error("Private method trigger() was called directly or not called as instance of Recur!")
+      throw new Error("Private method trigger() was called directly or not called as instance of Recur!")
     }
 
         // Make sure units and measure is defined and not null
@@ -307,13 +301,13 @@ const Recur = (function() {
 
         // Error if we don't have a valid ruleType
     if (ruleType !== "calendar" && ruleType !== "interval") {
-      throw Error(`Invlid measure provided: ${ this.measure}`)
+      throw new Error(`Invalid measure provided: ${this.measure}`)
     }
 
         // Create the rule
     if (ruleType === "interval") {
       if (!this.start) {
-        throw Error("Must have a start date set to set an interval!")
+        throw new Error("Must have a start date set to set an interval!")
       }
 
       rule = Interval.create(this.units, this.measure)
@@ -323,15 +317,15 @@ const Recur = (function() {
       rule = Calendar.create(this.units, this.measure)
     }
 
-        // Remove the temporary rule data
+    // Remove the temporary rule data
     this.units = null
     this.measure = null
 
     if (rule.measure === "weeksOfMonthByDay" && !this.hasRule("daysOfWeek")) {
-      throw Error("weeksOfMonthByDay must be combined with daysOfWeek")
+      throw new Error("weeksOfMonthByDay must be combined with daysOfWeek")
     }
 
-        // Remove existing rule based on measure
+    // Remove existing rule based on measure
     for (let i = 0; i < this.rules.length; i++) {
       if (this.rules[i].measure === rule.measure) {
         this.rules.splice(i, 1)
@@ -342,58 +336,59 @@ const Recur = (function() {
     return this
   }
 
-    // Private method to get next, previous or all occurrences
+  // Private method to get next, previous or all occurrences
   function getOccurrences(num, format, type) {
-    let currentDate, date
     const dates = []
 
     if (!(this instanceof Recur)) {
-      throw Error("Private method trigger() was called directly or not called as instance of Recur!")
+      throw new Error("Private method trigger() was called directly or not called as instance of Recur!")
     }
 
     if (!this.start && !this.from) {
-      throw Error("Cannot get occurrences without start or from date.")
+      throw new Error("Cannot get occurrences without start or from date.")
     }
 
     if (type === "all" && !this.end) {
-      throw Error("Cannot get all occurrences without an end date.")
+      throw new Error("Cannot get all occurrences without an end date.")
     }
 
     if (!!this.end && (this.start > this.end)) {
-      throw Error("Start date cannot be later than end date.")
+      throw new Error("Start date cannot be later than end date.")
     }
 
-        // Return empty set if the caller doesn't want any for next/prev
+    // Return empty set if the caller doesn't want any for next/prev
     if (type !== "all" && !(num > 0)) {
       return dates
     }
 
-        // Start from the from date, or the start date if from is not set.
-    currentDate = (this.from || this.start).clone()
+    // Start from the from date, or the start date if from is not set.
+    const currentDate = (this.from || this.start).clone()
 
-        // Reset the pattern builder, which dramatically speeds up queries
+    // Reset the pattern builder, which dramatically speeds up queries
     recurPattern.rebuild(this.rules)
 
-        // Include the initial date to the results if wanting all dates
+    // Include the initial date to the results if wanting all dates
     if (type === "all") {
       if (this.matches(currentDate, false)) {
-        date = format ? currentDate.format(format) : currentDate.clone()
+        const date = format ? currentDate.format(format) : currentDate.clone()
+
         dates.push(date)
       }
     }
 
-        // Get the next N dates, if num is null then infinite
+    // Get the next N dates, if num is null then infinite
     while (dates.length < (num === null ? dates.length + 1 : num)) {
       getNextDate(currentDate, type)
 
-            // Don't match outside the date if generating all dates within start/end
-            // ToDo: understand why finding "next" would not take the end date into consideration
-      if (this.matches(currentDate, (type === "all" ? false : true))) {
-        date = format ? currentDate.format(format) : currentDate.clone()
+      // Don't match outside the date if generating all dates within start/end
+      // TODO: understand why finding "next" would not take the end date into consideration
+      if (this.matches(currentDate, type !== "all")) {
+        const date = format ? currentDate.format(format) : currentDate.clone()
+
         dates.push(date)
       }
-            // if(type === "all" && currentDate >= this.end) {
-            // when searching for "all" or "next" dates, if the end date occurs prior to next date, exit the loop
+
+      // when searching for "all" or "next" dates, if the end date occurs prior to next date, exit the loop
       if (currentDate >= this.end) {
         break
       }
@@ -402,11 +397,9 @@ const Recur = (function() {
     return dates
   }
 
-
-    ///////////////////////
-    // Private Functions //
-    ///////////////////////
-
+  ///////////////////////
+  // Private Functions //
+  ///////////////////////
 
   function getNextDate(currentDate, type) {
     if (type === "all") {
@@ -422,7 +415,7 @@ const Recur = (function() {
     }
   }
 
-    // Private function to see if a date is within range of start/end
+  // Private function to see if a date is within range of start/end
   function inRange(start, end, date) {
     if (start && date.isBefore(start)) {
       return false
@@ -433,26 +426,26 @@ const Recur = (function() {
     return true
   }
 
-    // Private function to turn units into objects
+  // Private function to turn units into objects
   function unitsToObject(units) {
     let list = {}
 
-    if (Object.prototype.toString.call(units) == "[object Array]") {
+    if (Object.prototype.toString.call(units) === "[object Array]") {
       units.forEach((v) => {
         list[v] = true
       })
     } else if (units === Object(units)) {
       list = units
-    } else if ((Object.prototype.toString.call(units) == "[object Number]") || (Object.prototype.toString.call(units) == "[object String]")) {
+    } else if ((Object.prototype.toString.call(units) === "[object Number]") || (Object.prototype.toString.call(units) === "[object String]")) {
       list[units] = true
     } else {
-      throw Error("Provide an array, object, string or number when passing units!")
+      throw new Error("Provide an array, object, string or number when passing units!")
     }
 
     return list
   }
 
-    // Private function to check if a date is an exception
+  // Private function to check if a date is an exception
   function isException(exceptions, date) {
     for (let i = 0, len = exceptions.length; i < len; i++) {
       if (moment(exceptions[i]).isSame(date)) {
@@ -462,7 +455,7 @@ const Recur = (function() {
     return false
   }
 
-    // Private function to pluralize measure names for use with dictionaries.
+  // Private function to pluralize measure names for use with dictionaries.
   function pluralize(measure) {
     switch (measure) {
       case "day":
@@ -500,7 +493,7 @@ const Recur = (function() {
     }
   }
 
-    // Private function to see if all rules match
+  // Private function to see if all rules match
   function matchAllRules(rules, date, start) {
     let i, len, rule, type
 
@@ -524,20 +517,20 @@ const Recur = (function() {
     return true
   }
 
-    // Private function to create measure functions
+  // Private function to create measure functions
   function createMeasure(measure) {
     return function(units) {
-      this.every.call(this, units, measure)
+      this.every(units, measure)
       return this
     }
   }
 
 
-    //////////////////////
-    // Public Functions //
-    //////////////////////
+  //////////////////////
+  // Public Functions //
+  //////////////////////
 
-    // Recur Object Constrcutor
+  // Recur Object Constrcutor
   const Recur = function(options) {
     if (options.start) {
       this.start = moment(options.start, "MM/DD/YYYY").dateOnly()
@@ -547,10 +540,10 @@ const Recur = (function() {
       this.end = moment(options.end, "MM/DD/YYYY").dateOnly()
     }
 
-        // Our list of rules, all of which must match
+    // Our list of rules, all of which must match
     this.rules = options.rules || []
 
-        // Our list of exceptions. Match always fails on these dates.
+    // Our list of exceptions. Match always fails on these dates.
     const exceptions = options.exceptions || []
 
     this.exceptions = []
@@ -558,19 +551,19 @@ const Recur = (function() {
       this.except(exceptions[i])
     }
 
-        // Temporary units integer, array, or object. Does not get imported/exported.
+    // Temporary units integer, array, or object. Does not get imported/exported.
     this.units = null
 
-        // Tempoarary measure type. Does not get imported/exported.
+    // Tempoarary measure type. Does not get imported/exported.
     this.measure = null
 
-        // Tempoarary from date for next/previous. Does not get imported/exported.
+    // Tempoarary from date for next/previous. Does not get imported/exported.
     this.from = null
 
     return this
   }
 
-    // Get/Set start date
+  // Get/Set start date
   Recur.prototype.startDate = function(date) {
     if (date === null) {
       this.start = null
@@ -585,7 +578,7 @@ const Recur = (function() {
     return this.start
   }
 
-    // Get/Set end date
+  // Get/Set end date
   Recur.prototype.endDate = function(date) {
     if (date === null) {
       this.end = null
@@ -600,7 +593,7 @@ const Recur = (function() {
     return this.end
   }
 
-    // Get/Set a temporary from date
+  // Get/Set a temporary from date
   Recur.prototype.fromDate = function(date) {
     if (date === null) {
       this.from = null
@@ -615,7 +608,7 @@ const Recur = (function() {
     return this.from
   }
 
-    // Export the settings, rules, and exceptions of this recurring date
+  // Export the settings, rules, and exceptions of this recurring date
   Recur.prototype.save = function() {
     const data = {}
 
@@ -637,7 +630,7 @@ const Recur = (function() {
     return data
   }
 
-    // Return boolean value based on whether this date repeats (has rules or not)
+  // Return boolean value based on whether this date repeats (has rules or not)
   Recur.prototype.repeats = function() {
     if (this.rules.length > 0) {
       return true
@@ -646,7 +639,7 @@ const Recur = (function() {
     return false
   }
 
-    // Set the units and, optionally, the measure
+  // Set the units and, optionally, the measure
   Recur.prototype.every = function(units, measure) {
     if ((typeof units !== "undefined") && (units !== null)) {
       this.units = unitsToObject(units)
@@ -659,19 +652,19 @@ const Recur = (function() {
     return trigger.call(this)
   }
 
-    // Creates an exception date to prevent matches, even if rules match
+  // Creates an exception date to prevent matches, even if rules match
   Recur.prototype.except = function(date) {
     date = moment(date, "MM/DD/YYYY").dateOnly()
     this.exceptions.push(date)
     return this
   }
 
-    // Forgets rules (by passing measure) and exceptions (by passing date)
+  // Forgets rules (by passing measure) and exceptions (by passing date)
   Recur.prototype.forget = function(dateOrRule) {
     let i, len
     let whatMoment = moment(dateOrRule, "MM/DD/YYYY")
 
-        // If valid date, try to remove it from exceptions
+    // If valid date, try to remove it from exceptions
     if (whatMoment.isValid()) {
       whatMoment = whatMoment.dateOnly() // change to date only for perfect comparison
       for (i = 0, len = this.exceptions.length; i < len; i++) {
@@ -684,7 +677,7 @@ const Recur = (function() {
       return this
     }
 
-        // Otherwise, try to remove it from the rules
+    // Otherwise, try to remove it from the rules
     for (i = 0, len = this.rules.length; i < len; i++) {
       if (this.rules[i].measure === pluralize(dateOrRule)) {
         this.rules.splice(i, 1)
@@ -692,7 +685,7 @@ const Recur = (function() {
     }
   }
 
-    // Checks if a rule has been set on the chain
+  // Checks if a rule has been set on the chain
   Recur.prototype.hasRule = function(measure) {
     let i, len
 
@@ -704,12 +697,12 @@ const Recur = (function() {
     return false
   }
 
-    // Attempts to match a date to the rules
+  // Attempts to match a date to the rules
   Recur.prototype.matches = function(dateToMatch, ignoreStartEnd) {
     const date = moment(dateToMatch, "MM/DD/YYYY").dateOnly()
 
     if (!date.isValid()) {
-      throw Error(`Invalid date supplied to match method: ${ dateToMatch}`)
+      throw new Error(`Invalid date supplied to match method: ${ dateToMatch}`)
     }
 
     if (!ignoreStartEnd && !inRange(this.start, this.end, date)) {
@@ -728,22 +721,22 @@ const Recur = (function() {
     return true
   }
 
-    // Get next N occurances
+  // Get next N occurances
   Recur.prototype.next = function(num, format) {
     return getOccurrences.call(this, num, format, "next")
   }
 
-    // Get previous N occurances
+  // Get previous N occurances
   Recur.prototype.previous = function(num, format) {
     return getOccurrences.call(this, num, format, "previous")
   }
 
-    // Get all occurances between start and end date
+  // Get all occurances between start and end date
   Recur.prototype.all = function(format) {
     return getOccurrences.call(this, null, format, "all")
   }
 
-    // Create the measure functions (days(), months(), daysOfMonth(), monthsOfYear(), etc.)
+  // Create the measure functions (days(), months(), daysOfMonth(), monthsOfYear(), etc.)
   for (const measure in measures) {
     if (ruleTypes.hasOwnProperty(measure)) {
       Recur.prototype[measure] = Recur.prototype[measures[measure]] = createMeasure(measure)
@@ -765,7 +758,7 @@ moment.recur = function(start, end) {
   }
 
     // else, use the values passed
-  return new Recur({ start: start, end: end })
+  return new Recur({ start, end })
 }
 
 // Recur can also be created the following ways:
@@ -775,9 +768,9 @@ moment.recur = function(start, end) {
 // moment(start).recur(end)
 // moment().recur(end)
 moment.fn.recur = function(start, end) {
-    // If we have an object, use it as a set of options
+  // If we have an object, use it as a set of options
   if (start === Object(start) && !moment.isMoment(start)) {
-        // if we have no start date, use the moment
+    // if we have no start date, use the moment
     if (typeof start.start === "undefined") {
       start.start = this
     }
@@ -785,26 +778,29 @@ moment.fn.recur = function(start, end) {
     return new Recur(start)
   }
 
-    // if there is no end value, use the start value as the end
-  if (!end) {
-    end = start
-    start = undefined
+  let e = end
+  let s = start
+
+  // if there is no end value, use the start value as the end
+  if (!e) {
+    e = s
+    s = null
   }
 
-    // use the moment for the start value
-  if (!start) {
-    start = this
+  // use the moment for the start value
+  if (!s) {
+    s = this
   }
 
-  return new Recur({ start: start, end: end, moment: this })
+  return new Recur({ start: s, end: e, moment: this })
 }
 
 // Plugin for calculating the week of the month of a date
 moment.fn.monthWeek = function() {
-    // First day of the first week of the month
+  // First day of the first week of the month
   const week0 = this.clone().startOf("month").startOf("week")
 
-    // First day of week
+  // First day of week
   const day0 = this.clone().startOf("week")
 
   return day0.diff(week0, "weeks")
@@ -814,19 +810,17 @@ moment.fn.monthWeek = function() {
 // Similar to `moment().monthWeek()`, the return value is zero-indexed.
 // A return value of 2 means the date is the 3rd occurence of that day
 // of the week in the month.
-moment.fn.monthWeekByDay = function(date) {
-  let day, week0, day0, diff
+moment.fn.monthWeekByDay = function monthWeekByDay() {
+  // date obj
+  const day = this.clone()
 
-    // date obj
-  day = this.clone()
+  // First day of the first week of the month
+  const week0 = this.clone().startOf("month").startOf("week")
 
-    // First day of the first week of the month
-  week0 = this.clone().startOf("month").startOf("week")
+  // First day of week
+  const day0 = this.clone().startOf("week")
 
-    // First day of week
-  day0 = this.clone().startOf("week")
-
-  diff = day0.diff(week0, "weeks")
+  const diff = day0.diff(week0, "weeks")
 
   if (day.subtract(diff, "weeks").month() === this.clone().month()) {
     return diff
@@ -836,8 +830,8 @@ moment.fn.monthWeekByDay = function(date) {
 }
 
 // Plugin for removing all time information from a given date
-moment.fn.dateOnly = function() {
-  if (this.tz && typeof (moment.tz) == "function") {
+moment.fn.dateOnly = function dateOnly() {
+  if (this.tz && typeof (moment.tz) === "function") {
     return moment.tz(this.format("YYYY-MM-DD"), "UTC")
   } else {
     return this.hours(0).minutes(0).seconds(0).milliseconds(0).add(this.utcOffset(), "minute").utcOffset(0)
