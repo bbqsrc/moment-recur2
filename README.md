@@ -200,14 +200,14 @@ cal = moment.recur().every("Thursday").daysOfWeek()
 ### Matching
 The `matches()` function will test a date to check if all of the recurrence rules match. It returns `true` if the date matches, `false` otherwise.
 ```js
-var interval = moment("2014-01-01").recur().every(2).days()
+let interval = moment("2014-01-01").recur().every(2).days()
 interval.matches("2014-01-02") // false
 interval.matches("2014-01-03") // true
 ```
 
 You may also see if a date matches before the start date or after the end date by passing `true` as the second argument to `matches()`.
 ```js
-var interval = moment("2014-01-01").recur().every(2).days()
+let interval = moment("2014-01-01").recur().every(2).days()
 interval.matches("2013-12-30") // false
 interval.matches("2013-12-30", true) // true
 ```
@@ -216,7 +216,7 @@ interval.matches("2013-12-30", true) // true
 To prevent a date from matching that would normally match, use the `except()` function.
 
 ```js
-var recurrence = moment("2014-01-01").recur().every(1).day().except("2014-01-02")
+let recurrence = moment("2014-01-01").recur().every(1).day().except("2014-01-02")
 recurrence.matches("2014-01-02") // false
 ```
 
@@ -225,7 +225,7 @@ If a rule is created with the same measurement of a previous rule, it will overr
 
 ```js
 // Create a recurrence that matches every day, with an exception
-var recurrence = moment("2014-01-01").recur().every(1).day().except("2014-01-03")
+let recurrence = moment("2014-01-01").recur().every(1).day().except("2014-01-03")
 
 // This will override the previous rule and match every 2 days instead.
 recurrence.every(2).days()
@@ -241,7 +241,7 @@ recurrence.forget("days")
 It is also possible to generate dates from the rules. These functions require a starting date.
 
 ```js
-var recurrence, nextDates
+let recurrence, nextDates
 
 // Create a recurrence
 recurrence = moment("2014-01-01").recur().every(2).days()
@@ -258,7 +258,7 @@ nextDates = recurrence.previous(3, "L")
 
 If your recurrence does not have a start date set, or if it does but you want to start at a different date, use the `fromDate()` method first.
 ```js
-var recurrence = moment("2014-01-01").recur().every(2).days()
+let recurrence = moment("2014-01-01").recur().every(2).days()
 recurrence.fromDate("2014-02-05")
 
 // Outputs: ["2014-02-06", "2014-02-08", "2014-02-10"]
@@ -267,7 +267,7 @@ nextDates = recurrence.next(3, "YYYY-MM-DD")
 
 With both a start date and an end date set, you can generate all dates within that range that match the pattern (including the start/end dates).
 ```js
-var recurrence = moment().recur("2014-01-01", "2014-01-07").every(2).days()
+let recurrence = moment().recur("2014-01-01", "2014-01-07").every(2).days()
 
 // Outputs: ["2014-01-01", "2014-01-03", "2014-01-05", "2014-01-07"]
 allDates = recurrence.all("YYYY-MM-DD")
